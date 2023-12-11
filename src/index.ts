@@ -4,14 +4,12 @@ import { Telegraf } from "telegraf";
 import config from "./config";
 
 import bot from "./lib/bot";
-import helper from "./commands/helper";
 import echo from "./commands/echo";
 import message from "./commands/message";
 
 import { toEscapeMsg } from "./utils/messageHandler";
 
-import cron from 'node-cron';
-
+const schedule = require("node-schedule");
 //Production Settings
 if (process.env.NODE_ENV === "production") {
   //Production Logging
@@ -51,20 +49,28 @@ if (process.env.NODE_ENV === "production") {
   bot.launch();
 }
 
-const timeString = "2023-12-11T09:21:00Z"
-const time = new Date(timeString)
+const timeString = "2023-12-11T09:21:00Z";
+const time = new Date(timeString);
 
-const month = time.getUTCMonth() + 1; 
+const month = time.getUTCMonth() + 1;
 const day = time.getUTCDate();
 const hour = time.getUTCHours();
 const minute = time.getUTCMinutes();
 
-const cronExpression = `${minute} ${hour} ${day} ${month} *`
-console.log(cronExpression)
+// const cronExpression = `${minute} ${hour} ${day} ${month} *`;
 
-helper();
-// // echo();
-cron.schedule(cronExpression, message)
+const deadlines = [5, 15, 30];
+
+const dates = deadlines.map((x) => {
+  var t = new Date();
+  t.setSeconds(t.getSeconds() + x);
+
+  return [t, x];
+});
+
+dates.forEach((x) => {
+  schedule.scheduleJob(x[0], message(x[1]));
+});
 
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
