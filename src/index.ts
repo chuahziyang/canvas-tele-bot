@@ -6,8 +6,11 @@ import config from "./config";
 import bot from "./lib/bot";
 import helper from "./commands/helper";
 import echo from "./commands/echo";
+import message from "./commands/message";
 
 import { toEscapeMsg } from "./utils/messageHandler";
+
+import cron from 'node-cron';
 
 //Production Settings
 if (process.env.NODE_ENV === "production") {
@@ -36,20 +39,32 @@ if (process.env.NODE_ENV === "production") {
     }
     return next();
   });
-  bot.launch({
-    webhook: {
-      domain: config.URL,
-      port: Number(config.PORT),
-    },
-  });
+  // bot.launch({
+  //   webhook: {
+  //     domain: config.URL,
+  //     port: Number(config.PORT),
+  //   },
+  // });
 } else {
   //Development logging
   bot.use(Telegraf.log());
   bot.launch();
 }
 
+const timeString = "2023-12-11T09:21:00Z"
+const time = new Date(timeString)
+
+const month = time.getUTCMonth() + 1; 
+const day = time.getUTCDate();
+const hour = time.getUTCHours();
+const minute = time.getUTCMinutes();
+
+const cronExpression = `${minute} ${hour} ${day} ${month} *`
+console.log(cronExpression)
+
 helper();
-echo();
+// // echo();
+cron.schedule(cronExpression, message)
 
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
