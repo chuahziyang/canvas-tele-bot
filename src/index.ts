@@ -68,9 +68,10 @@ const dates = deadlines.map((x) => {
   return [t, x];
 });
 
-dates.forEach((x) => {
-  schedule.scheduleJob(x[0], message(x[1]));
-});
+echo();
+// dates.forEach((x) => {
+//   schedule.scheduleJob(x[0], message(x[1]));
+// });
 
 // Enable graceful stop
 process.once("SIGINT", () => bot.stop("SIGINT"));
